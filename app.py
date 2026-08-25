@@ -19,7 +19,7 @@ uploaded_files = st.file_uploader(
 if "converted" not in st.session_state:
     st.session_state.converted = None
 
-if uploaded_files and st.button("Convert to CSV"):
+if uploaded_files and st.button("Convert to CSV", use_container_width=True):
     # Use a temp directory to hold intermediate CSV files
     output_dir = Path(tempfile.mkdtemp())
     output_dir.mkdir(parents=True, exist_ok=True)
@@ -53,19 +53,21 @@ if st.session_state.converted:
         for csv_file in csv_files:
             # Each file gets its own bordered container with preview and download
             with st.container(border=True):
+            # with st.expander(f"**{csv_file.name}**", expanded=True):
                 st.markdown(f"**{csv_file.name}**")
 
                 df = pd.read_csv(csv_file)
                 st.dataframe(df)
                 with open(csv_file, "rb") as f:
-                    st.download_button(
-                        label=f"⬇ Download {csv_file.name}",
-                        data=f,
-                        file_name=csv_file.name,
-                        mime="text/csv",
-                        # Key must be unique per button to avoid Streamlit errors
-                        key=f"download_{csv_file.name}", 
-                    )
+                    with st.container(horizontal_alignment="right"):
+                        st.download_button(
+                            label=f"⬇ Download",
+                            data=f,
+                            file_name=csv_file.name,
+                            mime="text/csv",
+                            # Key must be unique per button to avoid Streamlit errors
+                            key=f"download_{csv_file.name}", 
+                        )
 
         if st.button("Clear Results"):
             # Reset state and clean up temp directory
