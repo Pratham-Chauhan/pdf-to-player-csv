@@ -85,7 +85,6 @@ def extract_table(page, dfs):
                 print()
 
 
-
 def process_pdf(input_path: Path, output_dir: Path, file_bytes: bytes = None) -> pd.DataFrame:
     """Main entry: extract player tables from a PDF and save as CSV.
 
@@ -95,7 +94,7 @@ def process_pdf(input_path: Path, output_dir: Path, file_bytes: bytes = None) ->
         file_bytes: Optional raw PDF bytes (used by Streamlit uploader).
     """
     dfs: List[pd.DataFrame] = []
-    
+
     if file_bytes:
         print(f"{GREEN}Reading PDF from bytes: {input_path.name}{RESET}")
         pdf = pdfplumber.open(io.BytesIO(file_bytes))
@@ -123,11 +122,10 @@ def process_pdf(input_path: Path, output_dir: Path, file_bytes: bytes = None) ->
         final.to_csv(out_path, index=False)
         print(f"{BLUE}Saved to CSV: '{out_path}'{RESET}\n")
         return final
-    
+
     else:
         print("No tables found")
         return pd.DataFrame()
-
 
 
 def main():
