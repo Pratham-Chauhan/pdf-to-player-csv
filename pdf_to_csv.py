@@ -25,7 +25,6 @@ pdf = None
 find_table_by_category = (lambda catg, row: any([catg in x.strip() for x in row if x]))
 
 
-
 def process_table_data(tdata, catg) -> pd.DataFrame:
 
     df = pd.DataFrame(tdata[2:], columns=tdata[1])
@@ -52,7 +51,7 @@ def process_table_data(tdata, catg) -> pd.DataFrame:
 
 def extract_table(page, dfs, output_path):
     tables = page.find_tables()
-    
+
     for tb in tables:
         x0, y0, x1, y1 = tb.bbox
 
@@ -82,17 +81,40 @@ def extract_table(page, dfs, output_path):
                 dfs.append(df)
                 print()
 
-            
+
 def read_input(input_file: Path):
     print(f"{GREEN}Reading PDF: {input_file.name}{RESET}")
     print('---'*20)
     pdf = pdfplumber.open(input_file)
 
-    return pdf 
+    return pdf
 
-def main():
+
+def process_pdf(input_path: Path, output_dir: Path):
     global pdf
 
+    dfs: List[pd.DataFrame] = []
+    pdf = read_input(input_path)
+
+    if input_path.suffix == '.pdf':
+        out_path = output_dir / input_path.name
+        out_path = out_path.with_suffix('.csv')
+
+        for i, page in enumerate(pdf.pages, start=1):
+            print('=' * 40)
+            print(f'  PAGE {i}')
+            print('=' * 40)
+            extract_table(page, dfs, out_path)
+
+        if dfs:
+            final = pd.concat(dfs)
+            final.to_csv(out_path, index=False)
+            print(f"{BLUE}Saved to CSV: '{out_path}'{RESET}\n")
+        else:
+            print("No tables found")
+
+
+def main():
     parser = argparse.ArgumentParser(
         description="Convert a PDF containing player tables into a CSV file.",
         epilog="Examples:\n"
@@ -123,7 +145,7 @@ def main():
         if not files:
             print(f"No PDF files found in '{folder}'")
             return
-        
+
     elif args.input_file:
         if not args.input_file.is_file():
             print(f"Error: '{args.input_file}' is not a valid file")
@@ -137,27 +159,7 @@ def main():
     output_dir.mkdir(parents=True, exist_ok=True)
 
     for input_path in files:
-        dfs: List[pd.DataFrame] = []
-        pdf = read_input(input_path)
-
-        if input_path.suffix == '.pdf':
-            out_path = output_dir / input_path.name
-            out_path = out_path.with_suffix('.csv')
-
-            for i, page in enumerate(pdf.pages, start=1):
-                print('=' * 40)
-                print(f'  PAGE {i}')
-                print('=' * 40)
-                extract_table(page, dfs, out_path)
-                
-            #
-            if dfs:
-                final = pd.concat(dfs)
-                final.to_csv(out_path, index=False)
-                print(f"{BLUE}Saved to CSV: '{out_path}'{RESET}\n")
-            else:
-                print("No tables found")
-
+        process_pdf(input_path, output_dir)
 
 
 if __name__ == "__main__":
@@ -171,7 +173,7 @@ if __name__ == "__main__":
             f.write(error)
 
     finally:
-        if pdf: 
+        if pdf:
             pdf.close()
 
     input("Press Enter to close...")
