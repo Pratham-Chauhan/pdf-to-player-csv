@@ -37,13 +37,16 @@ def process_table_data(tdata, catg) -> pd.DataFrame:
     if selected_cols:
         df = df[selected_cols]
     else:
-        print("Columns header are missing.")
+        print("Warning: Columns header are missing.")
         selected_cols = columns_list
 
-    df['Product'] = catg
+    df['product'] = catg
+
+    # rename columns
+    df.rename(columns={'#': 'number', 'Names': 'name', 'Size': 'size'}, inplace=True)
 
     # insert empty row at the end
-    # df.loc[len(df)] = [''] * (len(selected_cols)+1)
+    df.loc[len(df)] = ''
 
     print(df.head(5).to_markdown(index=False))
     return df
@@ -170,8 +173,8 @@ def main():
         parser.print_help()
         return
 
-    output_dir = Path('OUTPUT')
-    output_dir.mkdir(parents=True, exist_ok=True)
+    output_dir = Path('.')
+    # output_dir.mkdir(parents=True, exist_ok=True)
 
     for input_path in files:
         process_pdf(input_path=input_path, output_dir=output_dir)
