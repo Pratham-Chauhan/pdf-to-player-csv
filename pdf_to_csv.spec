@@ -4,6 +4,44 @@ from PyInstaller.utils.hooks import copy_metadata
 
 datas = copy_metadata("tabulate")
 
+# Packages that get pulled in transitively by pandas' optional-dependency probes
+# (pandas.compat._optional) and by a Jupyter/PyQt6 toolchain in the build env.
+# None of them are reachable at runtime from pdf_to_csv.py.
+excludes = [
+    'scipy',
+    'matplotlib',
+    'PyQt6',
+    'PyQt5',
+    'PySide2',
+    'PySide6',
+    'tkinter',
+    'IPython',
+    'ipykernel',
+    'jupyter_client',
+    'nbclient',
+    'nbformat',
+    'zmq',
+    'traitlets',
+    'sqlalchemy',
+    'psycopg2',
+    'jedi',
+    'parso',
+    'pygments',
+    'stack_data',
+    'asttokens',
+    'executing',
+    'prompt_toolkit',
+    'pytz',
+    'pytest',
+    'numpy.f2py',
+    'numpy.testing',
+    'PIL.ImageQt',
+    'PIL.ImageShow',
+    'setuptools',
+    'pkg_resources',
+    '_distutils_hack',
+]
+
 a = Analysis(
     ['pdf_to_csv.py'],
     pathex=[],
@@ -13,9 +51,9 @@ a = Analysis(
     hookspath=[],
     hooksconfig={},
     runtime_hooks=[],
-    excludes=[],
+    excludes=excludes,
     noarchive=False,
-    optimize=0,
+    optimize=2,
 )
 
 pyz = PYZ(a.pure)

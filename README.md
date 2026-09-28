@@ -53,7 +53,12 @@ python pdf_to_csv.py --all-pdfs INPUT
 | `-h`, `--help` | Show command-line help message and exit. |
 
 ---
+## Build Command (PyInstaller)
+```bash
+python.exe -m PyInstaller --noconfirm --clean --upx-dir . pdf_to_csv.spec
+```
 
+---
 ## 📂 Output
 
 - Processed CSV files are saved in the `OUTPUT/` folder.
